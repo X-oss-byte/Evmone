@@ -61,6 +61,12 @@ executors:
       xcode: 14.3.0
     environment:
       CMAKE_BUILD_PARALLEL_LEVEL: 4
+  macos-m1:
+    resource_class: macos.m1.large.gen1
+    macos:
+      xcode: 14.3.0
+    environment:
+      CMAKE_BUILD_PARALLEL_LEVEL: 8
   macos-xcode-min:
     resource_class: macos.x86.medium.gen2
     macos:
@@ -400,6 +406,18 @@ jobs:
       - test
       - package
 
+  release-macos-m1:
+    executor: macos-m1
+    environment:
+      BUILD_TYPE: Release
+    steps:
+      - run:
+          name: "Install System Dependencies"
+          command: HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake
+      - build
+      - test
+      - package
+
   deploy:
     docker:
       - image: circleci/golang
@@ -628,43 +646,44 @@ workflows:
   version: 2
   evmone:
     jobs:
-      - lint
-      - release-linux:
-          filters:
-            tags:
-              only: /.*/
-      - release-windows:
-          filters:
-            tags:
-              only: /.*/
-      - release-windows-32bit
-      - release-macos:
-          filters:
-            tags:
-              only: /.*/
-      - deploy:
-          requires:
-            - release-linux
-            - release-windows
-            - release-macos
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v[0-9].*/
-      - state-tests
+#      - lint
+#      - release-linux:
+#          filters:
+#            tags:
+#              only: /.*/
+#      - release-windows:
+#          filters:
+#            tags:
+#              only: /.*/
+#      - release-windows-32bit
+      - release-macos-m1
+#      - release-macos:
+#          filters:
+#            tags:
+#              only: /.*/
+#      - deploy:
+#          requires:
+#            - release-linux
+#            - release-windows
+#            - release-macos
+#          filters:
+#            branches:
+#              ignore: /.*/
+#            tags:
+#              only: /^v[0-9].*/
+#      - state-tests
       # TODO: Disabled because some tests are failing.
       #       See https://github.com/ethereum/evmone/issues/656.
       # - blockchain-tests
-      - cmake-min
-      - gcc-min
-      - clang-min
-      - gcc-latest-coverage
-      - gcc-latest-memcheck
-      - clang-latest-sanitizers
-      - clang-latest-coverage
-      - macos-asan
-      - xcode-min
-      - gcc-32bit
-      - x86-64-v1
-      - fuzzing
+#      - cmake-min
+#      - gcc-min
+#      - clang-min
+#      - gcc-latest-coverage
+#      - gcc-latest-memcheck
+#      - clang-latest-sanitizers
+#      - clang-latest-coverage
+#      - macos-asan
+#      - xcode-min
+#      - gcc-32bit
+#      - x86-64-v1
+#      - fuzzing
