@@ -232,6 +232,10 @@ commands:
     description: "Test"
     steps:
       - run:
+          name: "Unit tests"
+          working_directory: ~/build
+          command: bin/evmone-unittests
+      - run:
           name: "Test"
           shell: bash
           working_directory: ~/build
