@@ -413,8 +413,7 @@ jobs:
   release-macos-m1:
     executor: macos-m1
     environment:
-      BUILD_TYPE: RelWithDebInfo
-      CMAKE_OPTIONS:  -DSANITIZE=address
+      BUILD_TYPE: Release
     steps:
       - run:
           name: "Install System Dependencies"
