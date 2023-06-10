@@ -8,7 +8,7 @@ add_library(evmmax STATIC)
 add_library(evmone::evmmax ALIAS evmmax)
 target_compile_features(evmmax PUBLIC cxx_std_20)
 target_compile_options(evmmax PRIVATE -Wno-unused-command-line-argument)
-target_link_libraries(evmmax PRIVATE intx::intx)
+target_link_libraries(evmmax PRIVATE evmc::evmc intx::intx)
 target_sources(
     evmmax PRIVATE
     evmmax.hpp
