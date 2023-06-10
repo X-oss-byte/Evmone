@@ -45,6 +45,12 @@ TEST(evmmax, from_mont)
         1_u384);
 }
 
+TEST(evmmax, mont_of_zero_is_zero)
+{
+    const evmmax::ModArith<intx::uint384> s{BLS12384Mod};
+    EXPECT_EQ(s.to_mont(0_u384), 0_u384);
+}
+
 TEST(evmmax, mul_mont_384)
 {
     const evmmax::ModArith<intx::uint384> s{BLS12384Mod};
