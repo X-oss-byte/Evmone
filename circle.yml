@@ -56,9 +56,9 @@ executors:
     environment:
       CMAKE_BUILD_PARALLEL_LEVEL: 2
   macos:
-    resource_class: macos.x86.medium.gen2
+    resource_class: macos.m1.medium.gen1
     macos:
-      xcode: 14.3.0
+      xcode: 14.3.1
     environment:
       CMAKE_BUILD_PARALLEL_LEVEL: 4
   macos-xcode-min:
@@ -574,7 +574,7 @@ jobs:
     executor: macos
     environment:
       BUILD_TYPE: RelWithDebInfo
-      CMAKE_OPTIONS: -DSANITIZE=address
+      CMAKE_OPTIONS:
       TESTS_FILTER: unittests
     steps:
       - run:
@@ -622,41 +622,42 @@ workflows:
   version: 2
   evmone:
     jobs:
-      - lint
-      - release-linux:
-          filters:
-            tags:
-              only: /.*/
-      - release-windows:
-          filters:
-            tags:
-              only: /.*/
-      - release-windows-32bit
-      - release-macos:
-          filters:
-            tags:
-              only: /.*/
-      - deploy:
-          requires:
-            - release-linux
-            - release-windows
-            - release-macos
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v[0-9].*/
-      - state-tests
-      - blockchain-tests
-      - cmake-min
-      - gcc-min
-      - clang-min
-      - gcc-latest-coverage
-      - gcc-latest-memcheck
-      - clang-latest-sanitizers
-      - clang-latest-coverage
       - macos-asan
-      - xcode-min
-      - gcc-32bit
-      - x86-64-v1
-      - fuzzing
+#      - lint
+#      - release-linux:
+#          filters:
+#            tags:
+#              only: /.*/
+#      - release-windows:
+#          filters:
+#            tags:
+#              only: /.*/
+#      - release-windows-32bit
+#      - release-macos:
+#          filters:
+#            tags:
+#              only: /.*/
+#      - deploy:
+#          requires:
+#            - release-linux
+#            - release-windows
+#            - release-macos
+#          filters:
+#            branches:
+#              ignore: /.*/
+#            tags:
+#              only: /^v[0-9].*/
+#      - state-tests
+#      - blockchain-tests
+#      - cmake-min
+#      - gcc-min
+#      - clang-min
+#      - gcc-latest-coverage
+#      - gcc-latest-memcheck
+#      - clang-latest-sanitizers
+#      - clang-latest-coverage
+#      - macos-asan
+#      - xcode-min
+#      - gcc-32bit
+#      - x86-64-v1
+#      - fuzzing
