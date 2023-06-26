@@ -1,13 +1,12 @@
-#include <intx/intx.hpp>
+using uint64_t = unsigned long;
 
-template <typename T>
 struct result_with_carry
 {
-    T value;
+    uint64_t value;
     bool carry;
 };
 
-inline result_with_carry<uint64_t> _subc(uint64_t x, uint64_t y, bool carry = false) noexcept
+inline result_with_carry _subc(uint64_t x, uint64_t y, bool carry = false) noexcept
 {
     unsigned long long carryout = 0;
     const auto d = __builtin_subcll(x, y, carry, &carryout);
