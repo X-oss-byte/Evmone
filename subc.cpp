@@ -1,22 +1,22 @@
-using uint64_t = unsigned long;
+using u64 = unsigned long long;
 
 struct result_with_carry
 {
-    uint64_t value;
-    bool carry;
+    u64 value;
+    u64 carry;
 };
 
-inline result_with_carry _subc(uint64_t x, uint64_t y, bool carry = false) noexcept
+inline result_with_carry _subc(u64 x, u64 y, u64 carry) noexcept
 {
-    unsigned long long carryout = 0;
+    u64 carryout = 0;
     const auto d = __builtin_subcll(x, y, carry, &carryout);
-    return {d, static_cast<bool>(carryout)};
+    return {d, carryout};
 }
 
 
-[[gnu::noinline]] static auto neg(const uint64_t* y)
+[[gnu::noinline]] static auto neg(const u64* y)
 {
-    bool k = false;
+    u64 k = 0;
     auto t = _subc(0, y[0], k);
     k = t.carry;
     t = _subc(0, y[1], k);
@@ -27,9 +27,9 @@ inline result_with_carry _subc(uint64_t x, uint64_t y, bool carry = false) noexc
 
 int main()
 {
-    const uint64_t y[] = {1, 0, 0};
+    const u64 y[] = {1, 0, 0};
     auto d = neg(y);
-    if (d != ~uint64_t{})
+    if (d != ~u64{})
         return 1;
 
     return 0;
