@@ -21,21 +21,19 @@ inline result_with_carry<uint64_t> _subc(
 
 [[gnu::noinline]] static auto neg(const intx::uint192& y)
 {
-    intx::uint192 z;
     bool k = false;
-    for (size_t i = 0; i < 3; ++i)
-    {
-        auto t = _subc(0, y[i], k);
-        z[i] = t.value;
-        k = t.carry;
-    }
-    return z;
+    auto t = _subc(0, y[0], k);
+    k = t.carry;
+    t = _subc(0, y[1], k);
+    k = t.carry;
+    t = _subc(0, y[2], k);
+    return t.value;
 }
 
 int main()
 {
     auto d = neg(1);
-    if (d[2] != ~uint64_t{})
+    if (d != ~uint64_t{})
         return 1;
 
     return 0;
