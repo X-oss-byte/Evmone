@@ -17,9 +17,10 @@ inline result_with_carry _subc(u64 x, u64 y, u64 carry) noexcept
 [[gnu::noinline]] static auto neg(const u64* y)
 {
     u64 k = 0;
-    auto t = _subc(0, y[0], k);
-    k = t.carry;
-    t = _subc(0, y[1], k);
+
+    __builtin_subcll(0, y[0], k, &k);
+
+    auto t = _subc(0, y[1], k);
     k = t.carry;
     t = _subc(0, y[2], k);
     return t.value;
