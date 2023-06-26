@@ -194,9 +194,6 @@ commands:
             
             printf '\n-----------\nbuild.info:\n'
             cat build.info
-      - restore_cache:
-          name: "Restore Hunter cache"
-          key: &hunter-cache-key hunter-{{arch}}-{{checksum "build.info"}}-{{checksum "cmake/Hunter/init.cmake"}}-{{checksum "cmake/Hunter/config.cmake"}}
       - run:
           name: "Configure"
           working_directory: ~/build
@@ -205,17 +202,9 @@ commands:
               export toolchain_option="-DTOOLCHAIN=$TOOLCHAIN"
             fi
             cmake ../project $toolchain_option -DCMAKE_INSTALL_PREFIX=~/install -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DEVMONE_TESTING=ON $CMAKE_OPTIONS
-      - save_cache:
-          name: "Save Hunter cache"
-          key: *hunter-cache-key
-          paths:
-            - ~/.hunter/_Base/Cache
       - run:
           name: "Build"
           command: cmake --build ~/build
-      - run:
-          name: "Install"
-          command: cmake --build ~/build --target install
 
   test:
     description: "Test"
@@ -224,7 +213,7 @@ commands:
           name: "Test"
           shell: bash
           working_directory: ~/build
-          command: ./sub_test
+          command: ./subc_test
 
   collect_coverage_gcc:
     description: "Collect coverage data (GCC)"
