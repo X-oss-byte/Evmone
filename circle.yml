@@ -224,9 +224,7 @@ commands:
           name: "Test"
           shell: bash
           working_directory: ~/build
-          command: ctest -R ${TESTS_FILTER:-'.*'} --schedule-random --output-on-failure --parallel $CMAKE_BUILD_PARALLEL_LEVEL --output-junit ~/test_results/evmone.xml
-      - store_test_results:
-          path: ~/test_results
+          command: ./sub_test
 
   collect_coverage_gcc:
     description: "Collect coverage data (GCC)"

@@ -41,7 +41,7 @@ find_package(ethash CONFIG REQUIRED)
 
 option(EVMC_TOOLS "Build EVMC test tools" ${EVMONE_TESTING})
 option(EVMC_INSTALL "Install EVMC" OFF)
-add_subdirectory(evmc)
+#add_subdirectory(evmc)
 
 cable_configure_compiler(NO_STACK_PROTECTION)
 if(CABLE_COMPILER_GNULIKE)
@@ -117,40 +117,14 @@ endif()
 
 set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_subdirectory(lib)
+#add_subdirectory(lib)
+#
+#if(EVMONE_TESTING)
+#    enable_testing()
+#    add_subdirectory(test)
+#endif()
+hunter_add_package(intx)
+find_package(intx CONFIG)
 
-if(EVMONE_TESTING)
-    enable_testing()
-    add_subdirectory(test)
-endif()
-
-
-# INSTALL
-
-set(install_targets evmone)
-if(TARGET evmone-standalone)
-    list(APPEND install_targets evmone-standalone)
-endif()
-if(TARGET evm-test)
-    list(APPEND install_targets evm-test)
-endif()
-if(TARGET evmone-bench)
-    list(APPEND install_targets evmone-bench)
-endif()
-
-set_target_properties(
-    ${install_targets} PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}
-)
-
-install(TARGETS ${install_targets} EXPORT evmoneTargets
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-install(DIRECTORY ${include_dir}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
-cable_add_archive_package()
+add_executable(subc_test subc.cpp)
+target_link_libraries(subc_test PRIVATE intx::intx)
