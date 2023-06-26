@@ -2,8 +2,9 @@
 
 using namespace intx;
 
-[[gnu::noinline]] static auto sub(const uint192& x, const uint192& y)
+[[gnu::noinline]] static auto neg(const uint192& y)
 {
+    uint192 x;
     uint192 z;
     bool k = false;
     for (size_t i = 0; i < 3; ++i)
@@ -17,7 +18,7 @@ using namespace intx;
 
 int main()
 {
-    auto d = sub(0, 1);
+    auto d = neg(1);
     if (d[2] != ~uint64_t{})
         return 1;
 
