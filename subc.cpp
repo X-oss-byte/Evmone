@@ -17,7 +17,8 @@ using namespace intx;
 
 int main()
 {
-    if (sub(0, 1) != ~uint192{})
+    auto d = sub(0, 1);
+    if (d[2] != ~uint64_t{})
         return 1;
 
     return 0;
