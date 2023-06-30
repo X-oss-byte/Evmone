@@ -20,17 +20,6 @@ namespace
 [[maybe_unused]] constexpr auto BLS12384Mod =
     0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab_u384;
 
-inline constexpr uint64_t mul_inv64(uint64_t base) noexcept
-{
-    uint64_t result = 1;
-    for (auto _ = 0; _ < 64; ++_)
-    {
-        result *= base;
-        base *= base;
-    }
-    return result;
-}
-
 inline constexpr std::pair<uint64_t, uint64_t> addmul(
     uint64_t t, uint64_t a, uint64_t b, uint64_t c) noexcept
 {
