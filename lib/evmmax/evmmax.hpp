@@ -51,6 +51,14 @@ public:
     uint add(const uint& x, const uint& y) const noexcept;
 
     uint sub(const uint& x, const uint& y) const noexcept;
+
+    uint inv(const uint& x) const noexcept;
+
+    uint div(const uint& x, const uint& y) const noexcept;
+
+    uint pow(const uint& x, const uint& y) const noexcept;
+
+    uint neg(const uint& x) const noexcept;
 };
 
 // class ModState

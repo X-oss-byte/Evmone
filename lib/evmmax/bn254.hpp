@@ -4,6 +4,7 @@
 #pragma once
 
 #include "evmmax.hpp"
+#include "poly_extension_field.hpp"
 
 using namespace intx;
 
@@ -39,8 +40,6 @@ inline uint256 expmod(const evmmax::ModArith<uint256>& s, uint256 base, uint256 
     return result;
 }
 
-uint256 inv(const evmmax::ModArith<uint256>& s, const uint256& x) noexcept;
-
 struct Point
 {
     uint256 x;
@@ -51,6 +50,36 @@ struct Point
         // TODO(intx): C++20 operator<=> = default does not work for uint256.
         return a.x == b.x && a.y == b.y;
     }
+};
+
+struct BN245FieldModulus
+{
+    static constexpr auto MODULUS = BN254Mod;
+};
+
+struct ModCoeffs2
+{
+    static constexpr uint8_t DEGREE = 2;
+    static constexpr const uint256 MODULUS_COEFFS[DEGREE] = {1, 0};
+};
+
+struct ModCoeffs12
+{
+    static constexpr uint8_t DEGREE = 12;
+    static constexpr uint256 MODULUS_COEFFS[DEGREE] =
+        {82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0};
+};
+
+template<typename FieldElemT>
+struct PointExt
+{
+    FieldElemT x;
+    FieldElemT y;
+
+//    friend bool operator==(const PointExt& a, const PointExt& b) noexcept
+//    {
+//        return BN254FEType::eq(a, b);
+//    }
 };
 
 inline bool is_at_infinity(const Point& pt) noexcept
@@ -65,4 +94,19 @@ Point bn254_mul(const Point& pt, const uint256& c) noexcept;
 
 bool bn254_add_precompile(const uint8_t* input, size_t input_size, uint8_t* output) noexcept;
 bool bn254_mul_precompile(const uint8_t* input, size_t input_size, uint8_t* output) noexcept;
+
+using FE2 = class PolyExtFieldElem<uint256, ModCoeffs2, BN245FieldModulus>;
+using FE12 = class PolyExtFieldElem<uint256, ModCoeffs12, BN245FieldModulus>;
+using FE2Point = struct PointExt<FE2>;
+using FE12Point = struct PointExt<FE12>;
+
+template<class PolyExtFieldElemT>
+bool is_on_curve(const PolyExtFieldElemT& x, const PolyExtFieldElemT& y, const PolyExtFieldElemT& b)
+{
+    return PolyExtFieldElemT::eq(PolyExtFieldElemT::sub(PolyExtFieldElemT::pow(y, 2), PolyExtFieldElemT::pow(x, 3)), b);
+}
+
+FE12Point twist(const FE2Point& pt);
+FE12Point cast_to_fe12(const Point& pt);
+
 }  // namespace evmmax::bn254

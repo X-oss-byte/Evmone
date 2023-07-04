@@ -4,6 +4,8 @@
 
 #include "../utils/utils.hpp"
 #include <evmmax/evmmax.hpp>
+#include <evmmax/poly_extension_field.hpp>
+#include <evmmax/bn254.hpp>
 #include <gtest/gtest.h>
 
 using namespace intx;
@@ -13,8 +15,6 @@ const auto BLS12384ModBytes =
 
 constexpr auto BLS12384Mod =
     0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab_u384;
-
-constexpr auto BN254Mod = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47_u256;
 
 TEST(evmmax, setup_bls12_384)
 {
@@ -138,4 +138,32 @@ TEST(evmmax, bn254_mul)
     const auto p = s.from_mont(pm);
 
     EXPECT_EQ(p, mulmod(a, b, s.mod));
+}
+
+TEST(evmmax, field_operations)
+{
+    using namespace evmmax;
+
+    static auto fe2t = bn254::FE2({1,1});
+    static auto s2 = bn254::FE2::add(fe2t, fe2t);
+    static auto m2 = bn254::FE2::mul(fe2t, fe2t);
+    static auto d2 = bn254::FE2::div(fe2t, 5);
+    static auto inv2 = bn254::FE2::inv(fe2t);
+
+    static auto fe12t = bn254::FE12({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
+    static auto s12 = bn254::FE12::add(fe12t, fe12t);
+    static auto m12 = bn254::FE12::mul(fe12t, fe12t);
+    static auto d12 = bn254::FE12::div(fe12t, 5);
+    static auto inv12 = bn254::FE12::inv(fe12t);
+
+    static auto dp2 = bn254::FE2::poly_rounded_div({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1,1,1});
+
+    // bn254 curve y^2 = x^3 + 3
+    //auto B = uint256(3);
+    // Twisted curve over FQ**2
+    auto B2 = bn254::FE2::div(bn254::FE2({3, 0}), bn254::FE2({9, 1}));
+    // Extension curve over FQ**12; same b value as over FQ
+    auto B12 = bn254::FE12({3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+
+    bn254::is_on_curve(B2, B2, B2);
 }
