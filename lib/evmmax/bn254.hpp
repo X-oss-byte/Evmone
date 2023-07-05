@@ -76,10 +76,10 @@ struct PointExt
     FieldElemT x;
     FieldElemT y;
 
-//    friend bool operator==(const PointExt& a, const PointExt& b) noexcept
-//    {
-//        return BN254FEType::eq(a, b);
-//    }
+    static inline constexpr bool eq(const PointExt& a, const PointExt& b)
+    {
+        return FieldElemT::eq(a.x, b.x) && FieldElemT::eq(a.y, b.y);
+    }
 };
 
 inline bool is_at_infinity(const Point& pt) noexcept
@@ -108,5 +108,27 @@ bool is_on_curve(const PolyExtFieldElemT& x, const PolyExtFieldElemT& y, const P
 
 FE12Point twist(const FE2Point& pt);
 FE12Point cast_to_fe12(const Point& pt);
+
+// Create a function representing the line between P1 and P2, and evaluate it at T
+template<typename FieldElemT>
+PointExt<FieldElemT> line_func(const PointExt<FieldElemT>& P, const PointExt<FieldElemT>& Q,
+    const PointExt<FieldElemT>& T);
+
+// Create a function representing the line between P1 and P2, and evaluate it at T
+template<typename FieldElemT>
+FieldElemT line_func(const PointExt<FieldElemT>& P, const PointExt<FieldElemT>& Q,
+    const PointExt<FieldElemT>& T);
+
+// Elliptic curve point doubling over extension field
+template<typename FieldElemT>
+PointExt<FieldElemT> point_double(const PointExt<FieldElemT>& p);
+
+// Elliptic curve point addition over extension field
+template<typename FieldElemT>
+PointExt<FieldElemT> point_add(const PointExt<FieldElemT>& p1, const PointExt<FieldElemT>& p2);
+
+// Elliptic curve point multiplication over extension field
+template<typename FieldElemT>
+PointExt<FieldElemT> point_multiply(const PointExt<FieldElemT>& pt, const uint256& n);
 
 }  // namespace evmmax::bn254

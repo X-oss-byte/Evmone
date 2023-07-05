@@ -283,7 +283,7 @@ Point bn254_mul(const Point& pt, const uint256& c) noexcept
 FE12Point twist(const FE2Point& pt)
 {
     static const auto omega = FE12({0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
-    //    if (is_at_infinity(p))
+    //    if (is_at_infinity(p)) // TODO: Implement at infinity for ext fields
     //        return Inf;
     auto _x = pt.x;
     auto _y = pt.y;
@@ -306,6 +306,83 @@ FE12Point cast_to_fe12(const Point& pt)
         FE12({pt.y, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
     };
 }
+
+template<typename FieldElemT>
+FieldElemT line_func(const PointExt<FieldElemT>& p1, const PointExt<FieldElemT>& p2,
+    const PointExt<FieldElemT>& t)
+{
+//    assert(!is_at_infinity(p1)); // No points-at-infinity allowed, sorry
+//    assert(!is_at_infinity(p2));
+
+    if (!FieldElemT::eq(p1.x, p2.x))
+    {
+        auto m = FieldElemT::div(FieldElemT::sub(p2.y, p1.y), FieldElemT::sub(p2.x, p1.y));
+        return FieldElemT::sub(FieldElemT::mul(FieldElemT::sub(t.x, p1.x), m),
+            FieldElemT::sub(t.y, p1.y));
+    }
+    else if (FieldElemT::eq(p1.y, p2.y))
+    {
+        auto m = FieldElemT::div(FieldElemT::mul(FieldElemT::pow(p1.x, 2), 3),
+            FieldElemT::mul(p1.y, 2));
+        return FieldElemT::sub(FieldElemT::mul(FieldElemT::sub(t.x, p1.x), m),
+            FieldElemT::sub(t.y, p1.y));
+    } else
+        return FieldElemT::sub(t.x, p1.x);
+}
+
+// Elliptic curve doubling over extension field
+template<typename FieldElemT>
+PointExt<FieldElemT> point_double(const PointExt<FieldElemT>& p)
+{
+    using ET = FieldElemT;
+    auto lambda = ET::div(ET::mul(ET::pow(p.x, 2), 3), ET::mul(p.y, 2));
+    auto new_x = ET::sub(ET::pow(lambda, 2), ET::mul(p.x, 2));
+    auto new_y = ET::sub(ET::add(ET::mul(ET::neg(lambda), new_x), ET::mul(lambda, p.x)), p.y);
+
+    return {new_x, new_y};
+}
+
+// Elliptic curve doubling over extension field
+template<typename FieldElemT>
+PointExt<FieldElemT> point_add(const PointExt<FieldElemT>& p1, const PointExt<FieldElemT>& p2)
+{
+    using ET = FieldElemT;
+
+    if (PointExt<ET>::eq(p1, p2))
+        return point_double(p1);
+    else if (ET::eq(p1.x, p2.x))
+        return {ET(), ET()};
+    else
+    {
+        auto lambda = ET::div(ET::sub(p2.y, p1.y), ET::sub(p2.x, p1.x));
+        auto new_x = ET::sub(ET::sub(ET::pow(lambda, 2), p1.x), p2.x);
+        auto new_y = ET::sub(ET::add(ET::mul(ET::neg(lambda), new_x), ET::mul(lambda, p2.x)), p2.y);
+
+        return {new_x, new_y};
+    }
+}
+
+template<typename FieldElemT>
+PointExt<FieldElemT> point_multiply(const PointExt<FieldElemT>& pt, const uint256& n)
+{
+    if (n == 0)
+        return {FieldElemT(), FieldElemT()};
+    else if (n == 1)
+        return pt;
+    else if (n % 2 == 0)
+        return point_multiply(point_double(pt), n / 2);
+    else
+        return point_add(point_multiply(point_double(pt), n / 2), pt);
+}
+
+template FE2 line_func<FE2>(const PointExt<FE2>&, const PointExt<FE2>&, const PointExt<FE2>&);
+template FE12 line_func<FE12>(const PointExt<FE12>&, const PointExt<FE12>&, const PointExt<FE12>&);
+template PointExt<FE2> point_double(const PointExt<FE2>&);
+template PointExt<FE12> point_double(const PointExt<FE12>&);
+template PointExt<FE2> point_add(const PointExt<FE2>&, const PointExt<FE2>&);
+template PointExt<FE12> point_add(const PointExt<FE12>&, const PointExt<FE12>&);
+template PointExt<FE2> point_multiply(const PointExt<FE2>&, const uint256&);
+template PointExt<FE12> point_multiply(const PointExt<FE12>&, const uint256&);
 
 bool bn254_add_precompile(const uint8_t* input, size_t input_size, uint8_t* output) noexcept
 {
