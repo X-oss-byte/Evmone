@@ -99,6 +99,7 @@ enum class EOFValidationError
     stack_underflow,
     invalid_code_section_index,
     invalid_dataloadn_index,
+    jumpf_destination_incompatible_outputs,
 
     impossible,
 };
