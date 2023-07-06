@@ -111,7 +111,7 @@ FE12Point cast_to_fe12(const Point& pt);
 
 // Create a function representing the line between P1 and P2, and evaluate it at T
 template<typename FieldElemT>
-PointExt<FieldElemT> line_func(const PointExt<FieldElemT>& P, const PointExt<FieldElemT>& Q,
+FieldElemT line_func(const PointExt<FieldElemT>& P, const PointExt<FieldElemT>& Q,
     const PointExt<FieldElemT>& T);
 
 // Create a function representing the line between P1 and P2, and evaluate it at T
@@ -130,5 +130,7 @@ PointExt<FieldElemT> point_add(const PointExt<FieldElemT>& p1, const PointExt<Fi
 // Elliptic curve point multiplication over extension field
 template<typename FieldElemT>
 PointExt<FieldElemT> point_multiply(const PointExt<FieldElemT>& pt, const uint256& n);
+
+FE12 pairing(const FE2Point& Q, const Point& P);
 
 }  // namespace evmmax::bn254

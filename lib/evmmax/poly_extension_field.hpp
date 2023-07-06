@@ -169,7 +169,8 @@ public:
         return PolyExtFieldElem<UintT, ModCoeffsT, FiledModulusT>(std::move(_one));
     }
 
-    static inline constexpr PolyExtFieldElem pow(const PolyExtFieldElem& x, UintT y)
+    template<typename PowUintT>
+    static inline constexpr PolyExtFieldElem pow(const PolyExtFieldElem& x, const PowUintT& y)
     {
         if (y == 0)
             return one();
