@@ -169,6 +169,12 @@ public:
         return PolyExtFieldElem<UintT, ModCoeffsT, FiledModulusT>(std::move(_one));
     }
 
+    static inline constexpr PolyExtFieldElem zero()
+    {
+        std::vector<UintT> _one(degree);
+        return PolyExtFieldElem<UintT, ModCoeffsT, FiledModulusT>(std::move(_one));
+    }
+
     template<typename PowUintT>
     static inline constexpr PolyExtFieldElem pow(const PolyExtFieldElem& x, const PowUintT& y)
     {

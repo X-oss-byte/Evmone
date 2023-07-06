@@ -165,5 +165,6 @@ TEST(evmmax, field_operations)
     // Extension curve over FQ**12; same b value as over FQ
     auto B12 = bn254::FE12({3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
 
-    bn254::is_on_curve(B2, B2, B2);
+    bn254::is_on_curve_b2(bn254::FE2Point({B2, B2}));
+    bn254::is_on_curve_b12(bn254::FE12Point({B12, B12}));
 }

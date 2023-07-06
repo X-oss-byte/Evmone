@@ -280,11 +280,23 @@ Point bn254_mul(const Point& pt, const uint256& c) noexcept
     return {s.from_mont(x0), s.from_mont(y0)};
 }
 
+bool is_on_curve_b2(const FE2Point& p)
+{
+    static const auto B2 = bn254::FE2::div(bn254::FE2({3, 0}), bn254::FE2({9, 1}));
+    return FE2::eq(FE2::sub(FE2::pow(p.y, 2), FE2::pow(p.x, 3)), B2);
+}
+
+bool is_on_curve_b12(const FE12Point& p)
+{
+    static const auto B12 = bn254::FE12({3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+    return FE12::eq(FE12::sub(FE12::pow(p.y, 2), FE12::pow(p.x, 3)), B12);
+}
+
 FE12Point twist(const FE2Point& pt)
 {
     static const auto omega = FE12({0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
-    //    if (is_at_infinity(p)) // TODO: Implement at infinity for ext fields
-    //        return Inf;
+    if (FE2Point::is_at_infinity(pt))
+        return FE12Point::infinity();
     auto _x = pt.x;
     auto _y = pt.y;
     // Field isomorphism from Z[p] / x**2 to Z[p] / x**2 - 18*x + 82
@@ -311,8 +323,8 @@ template<typename FieldElemT>
 FieldElemT line_func(const PointExt<FieldElemT>& p1, const PointExt<FieldElemT>& p2,
     const PointExt<FieldElemT>& t)
 {
-//    assert(!is_at_infinity(p1)); // No points-at-infinity allowed, sorry
-//    assert(!is_at_infinity(p2));
+    assert(!PointExt<FieldElemT>::is_at_infinity(p1));
+    assert(!PointExt<FieldElemT>::is_at_infinity(p2));
 
     if (!FieldElemT::eq(p1.x, p2.x))
     {
@@ -391,7 +403,8 @@ FE12 miller_loop(const FE12Point& Q, const FE12Point& P)
     static constexpr auto log_ate_loop_count = 63;
     static const uint<2816> final_exp_pow = // ((field_modulus ** 12 - 1) // curve_order
         intx::from_string<uint<2816>>("552484233613224096312617126783173147097382103762957654188882734314196910839907541213974502761540629817009608548654680343627701153829446747810907373256841551006201639677726139946029199968412598804882391702273019083653272047566316584365559776493027495458238373902875937659943504873220554161550525926302303331747463515644711876653177129578303191095900909191624817826566688241804408081892785725967931714097716709526092261278071952560171111444072049229123565057483750161460024353346284167282452756217662335528813519139808291170539072125381230815729071544861602750936964829313608137325426383735122175229541155376346436093930287402089517426973178917569713384748081827255472576937471496195752727188261435633271238710131736096299798168852925540549342330775279877006784354801422249722573783561685179618816480037695005515426162362431072245638324744480");
-    // if(is) TOOD: Check if at infinity
+    if (FE12Point::is_at_infinity(Q) || FE12Point::is_at_infinity(P))
+        return FE12::one();
 
     auto R = Q;
     auto f = FE12::one();
@@ -405,25 +418,23 @@ FE12 miller_loop(const FE12Point& Q, const FE12Point& P)
             f = FE12::mul(f, line_func(R, Q, P));
             R = point_add(R, Q);
         }
-
-        FE12Point Q1 = {FE12::pow(Q.x, BN254Mod), FE12::pow(Q.y, BN254Mod)};
-        // assert is_on_curve(Q1, b12)
-        FE12Point nQ2 = {FE12::pow(Q1.x, BN254Mod), FE12::neg(FE12::pow(Q1.y, BN254Mod))};
-        // assert is_on_curve(nQ2, b12)
-        f = FE12::mul(f, line_func(R, Q1, P));
-        R = point_add(R, Q1);
-        f = FE12::mul(f, line_func(R, nQ2, P));
-        // R = add(R, nQ2) This line is in many specifications but it technically does nothing
-        return FE12::pow(f, final_exp_pow);
     }
 
-    return FE12::one();
+    FE12Point Q1 = {FE12::pow(Q.x, BN254Mod), FE12::pow(Q.y, BN254Mod)};
+    // assert(is_on_curve_b12(Q1));
+    FE12Point nQ2 = {FE12::pow(Q1.x, BN254Mod), FE12::neg(FE12::pow(Q1.y, BN254Mod))};
+    // assert(is_on_curve_b12(nQ1));
+    f = FE12::mul(f, line_func(R, Q1, P));
+    R = point_add(R, Q1);
+    f = FE12::mul(f, line_func(R, nQ2, P));
+    // R = add(R, nQ2) This line is in many specifications but it technically does nothing
+    return FE12::pow(f, final_exp_pow);
 }
 
 FE12 pairing(const FE2Point& Q, const Point& P)
 {
-    // assert(is_on_curve())
-    // assert(is_on_curve())
+    assert(is_on_curve_b2(Q));
+    assert(validate(P));
 
     return miller_loop(twist(Q), cast_to_fe12(P));
 }

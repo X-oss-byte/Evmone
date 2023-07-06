@@ -80,6 +80,16 @@ struct PointExt
     {
         return FieldElemT::eq(a.x, b.x) && FieldElemT::eq(a.y, b.y);
     }
+
+    static inline constexpr bool is_at_infinity(const PointExt& a)
+    {
+        return FieldElemT::eq(a.x, FieldElemT::zero()) && FieldElemT::eq(a.y, FieldElemT::zero());
+    }
+
+    static inline constexpr PointExt infinity()
+    {
+        return {FieldElemT::zero(), FieldElemT::zero()};
+    }
 };
 
 inline bool is_at_infinity(const Point& pt) noexcept
@@ -100,11 +110,8 @@ using FE12 = class PolyExtFieldElem<uint256, ModCoeffs12, BN245FieldModulus>;
 using FE2Point = struct PointExt<FE2>;
 using FE12Point = struct PointExt<FE12>;
 
-template<class PolyExtFieldElemT>
-bool is_on_curve(const PolyExtFieldElemT& x, const PolyExtFieldElemT& y, const PolyExtFieldElemT& b)
-{
-    return PolyExtFieldElemT::eq(PolyExtFieldElemT::sub(PolyExtFieldElemT::pow(y, 2), PolyExtFieldElemT::pow(x, 3)), b);
-}
+bool is_on_curve_b2(const FE2Point& p);
+bool is_on_curve_b12(const FE12Point& p);
 
 FE12Point twist(const FE2Point& pt);
 FE12Point cast_to_fe12(const Point& pt);
