@@ -21,7 +21,7 @@ def build_subtree(elems, arr, pos):
     size = len(elems)
     if size == 1:
         arr[pos] = elems[0]
-        print("* {}".format(elems[0]))
+        print(f"* {elems[0]}")
         return
 
     perfect_tree_size = hibit(size + 1) - 1
@@ -37,7 +37,7 @@ def build_subtree(elems, arr, pos):
 
     middle = size // 2 + balance // 2
     arr[pos] = elems[middle]
-    print("* {}".format(elems[middle]))
+    print(f"* {elems[middle]}")
 
     left = elems[:middle]
     right = elems[middle + 1:]
@@ -56,7 +56,7 @@ def build_tree(size):
     l = 1
     q = 0
     for i in range(len(arr)):
-        print("{} ".format(arr[i]), end='')
+        print(f"{arr[i]} ", end='')
         q += 1
         if q == l:
             l *= 2
